@@ -47,6 +47,8 @@ def _parse_json(card_json):
         f"Set: {card_json['set'].upper()} #{card_json['collector_number']}\n"
         f"Game Changer: {'Yes' if card_json.get('game_changer') else 'No'}\n"
     )
+
+def _get_keywords(keyword):
     
 
 def _get_all_printings(card_name):

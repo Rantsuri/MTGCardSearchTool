@@ -2,26 +2,32 @@ import customtkinter as ctk
 import requests
 import mtgSearch as mtgsearch
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+
+ctk.set_appearance_mode("light")
+ctk.set_default_color_theme("custom_theme.json")
 
 class MainFrame(ctk.CTkFrame):
     def __init__(self,master):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1)
         self.title_label = ctk.CTkLabel(self, text="MTG Card Database", font=ctk.CTkFont(size=28, weight="bold"))
-        self.title_label.grid(row=0, column=0, pady=(80, 6))
+        self.title_label.grid(row=0, column=1, pady=(80, 6))
 
         self.subtitle_label = ctk.CTkLabel(self, text="Powered by Scryfall API")
-        self.subtitle_label.grid(row=1, column=0, pady=(0, 40))
+        self.subtitle_label.grid(row=1, column=1, pady=(0, 40))
 
         #fuzzy card search
         self.search_button = ctk.CTkButton(self, text="Card search", width=200, height=40, command=master.show_search_frame)
         self.search_button.grid(row=2, column=0)
-
+        
         #set search button
         self.set_search_button = ctk.CTkButton(self, text="Set search", width=200, height=40,command=master.show_set_search_frame)
-        self.set_search_button.grid(row = 3, column=0)
+        self.set_search_button.grid(row = 2, column=2, padx= 10)
+
+        #keyword searchbutton
+        self.keyword_search_button = ctk.CTkButton(self, text= "keyword search", width=200, height=40, command=master.show_keyword_search_frame)
+        self.keyword_search_button.grid(row = 2, column =1)
 
 class FuzzySearchFrame(ctk.CTkFrame):
     def __init__(self, master):
@@ -70,6 +76,8 @@ class SetSearchFrame(ctk.CTkFrame):
         self.results = ctk.CTkTextbox(self)
         self.results.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=20, pady=(0, 20))
 
+    #def on_search(self, master): TODO
+
     def on_search(self, event = None):
         set_name = self.searh.get().strip()
         if not set_name:
@@ -94,7 +102,12 @@ class SetSearchFrame(ctk.CTkFrame):
 
 
 
-#class KeyWordSearchFrame(): TODO 
+class keywords(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight= 1)
+
 
 
 class App(ctk.CTk):
@@ -102,13 +115,15 @@ class App(ctk.CTk):
         super().__init__()
         self.title("mtg Search tool")
         self.geometry("720x460")
-        self.minsize(600,400)
+        self.minsize(720,460)
+        self.maxsize(720, 460)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
         self.main_frame = MainFrame(self)
         self.search_frame = FuzzySearchFrame(self)
         self.set_search_frame = SetSearchFrame(self)
+        self.keyword_frame = keywords(self)
         self.show_main_frame()
 
     def _show(self, frame):
@@ -124,3 +139,6 @@ class App(ctk.CTk):
 
     def show_set_search_frame(self):
         self._show(self.set_search_frame)
+
+    def show_keyword_search_frame(self):
+        self._show(self.keyword_frame)

@@ -3,6 +3,7 @@ import json
 import re
 import sqlite3
 import sys
+import os
 import time
 from collections import Counter
 from pathlib import Path
@@ -32,9 +33,9 @@ def _get(path, **params):
     request.raise_for_status()
     return request.json()
 
-
-
-
+def _get_json(path):
+    with open(path) as file:
+        return json.load(path)
 
 def _parse_json(card_json):
     colors = ', '.join(card_json.get('color_identity', [])) or 'Colourless'
@@ -49,7 +50,10 @@ def _parse_json(card_json):
     )
 
 def _get_keywords(keyword):
+    _keyword_list = _get_json('/MTGCardSearchTool/src/data/keywords.json')
     
+
+
 
 def _get_all_printings(card_name):
     _list = _get('/cards/search', q = {card_name}, unique='prints', order = 'released')

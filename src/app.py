@@ -4,7 +4,7 @@ import mtgSearch as mtgsearch
 
 
 ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("custom_theme.json")
+ctk.set_default_color_theme("MTGCardSearchTool/src/theme_assets/custom_theme.json")
 
 class MainFrame(ctk.CTkFrame):
     def __init__(self,master):
@@ -76,7 +76,6 @@ class SetSearchFrame(ctk.CTkFrame):
         self.results = ctk.CTkTextbox(self)
         self.results.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=20, pady=(0, 20))
 
-    #def on_search(self, master): TODO
 
     def on_search(self, event = None):
         set_name = self.searh.get().strip()
@@ -107,6 +106,16 @@ class keywords(ctk.CTkFrame):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight= 1)
+
+        self.search = ctk.CTkEntry(self, placeholder_text= "search for a Magic keyword")
+        self.search.grid(row = 0, column = 0, sticky = "nsew", padx = 20, pady = 20)
+        self.search.bind("<Return>", self.on_search)
+
+    def on_search(self, event = None):
+        keyword_name = self.search.get().strip()
+        if not keyword_name:
+            return
+        self.results.delete("1,0")
 
 
 

@@ -32,18 +32,34 @@ class MainFrame(ctk.CTkFrame):
 class FuzzySearchFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
+
+        self.grid_columnconfigure(0, weight=1, uniform="cols")
+        self.grid_columnconfigure(1, weight=1, uniform="cols")
         self.grid_rowconfigure(1, weight=1)
 
         self.search = ctk.CTkEntry(self, placeholder_text="Search for a card...")
-        self.search.grid(row=0, column=0, sticky="ew", padx=20, pady=20)
+        self.search.grid(row=0, column=0, sticky="ew", padx=(20, 10), pady=20)
         self.search.bind("<Return>", self.on_search)
 
-        self.back_button = ctk.CTkButton(self, text="Back", width=90, command=master.show_main_frame)
-        self.back_button.grid(row=0, column=1, padx=(0, 20), pady=20)
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.grid(row=0, column=1, sticky="ew", padx=(10, 20), pady=20)
+        self.button_frame.grid_columnconfigure(0, weight=1, uniform="btns")
+        self.button_frame.grid_columnconfigure(1, weight=1, uniform="btns")
+
+        self.filter_button = ctk.CTkButton(self.button_frame, text="Filter")
+        self.filter_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
+        self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
         self.results = ctk.CTkTextbox(self)
-        self.results.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=20, pady=(0, 20))
+        self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
+
+        self.image_box = ctk.CTkTextbox(self)
+        self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
+
+    def on_filter(self):
+        return
 
     def on_search(self, event=None):
         card_name = self.search.get().strip()
@@ -63,19 +79,31 @@ class FuzzySearchFrame(ctk.CTkFrame):
 class SetSearchFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
+       
+        self.grid_columnconfigure(0, weight=1, uniform="cols")
+        self.grid_columnconfigure(1, weight=1, uniform="cols")
         self.grid_rowconfigure(1, weight=1)
 
-        self.searh = ctk.CTkEntry(self, placeholder_text="Search for a magic set")
-        self.searh.grid(row = 0, column = 0, sticky = "ew", padx=20, pady=20)
-        self.searh.bind("<Return>", self.on_search)
+        self.search = ctk.CTkEntry(self, placeholder_text="Search for a card...")
+        self.search.grid(row=0, column=0, sticky="ew", padx=(20, 10), pady=20)
+        self.search.bind("<Return>", self.on_search)
 
-        self.back_button = ctk.CTkButton(self, text="Back", width=90, command=master.show_main_frame)
-        self.back_button.grid(row=0, column=1, padx=(0, 20), pady=20)
-        
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.grid(row=0, column=1, sticky="ew", padx=(10, 20), pady=20)
+        self.button_frame.grid_columnconfigure(0, weight=1, uniform="btns")
+        self.button_frame.grid_columnconfigure(1, weight=1, uniform="btns")
+
+        self.filter_button = ctk.CTkButton(self.button_frame, text="Filter")
+        self.filter_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
+        self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+
         self.results = ctk.CTkTextbox(self)
-        self.results.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=20, pady=(0, 20))
+        self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
 
+        self.image_box = ctk.CTkTextbox(self)
+        self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
 
     def on_search(self, event = None):
         set_name = self.searh.get().strip()
@@ -101,28 +129,54 @@ class SetSearchFrame(ctk.CTkFrame):
 
 
 
-class keywords(ctk.CTkFrame):
+class keywordsFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight= 1)
+        
+        self.grid_columnconfigure(0, weight=1, uniform="cols")
+        self.grid_columnconfigure(1, weight=1, uniform="cols")
+        self.grid_rowconfigure(1, weight=1)
 
-        self.search = ctk.CTkEntry(self, placeholder_text= "search for a Magic keyword")
-        self.search.grid(row = 0, column = 0, sticky = "nsew", padx = 20, pady = 20)
+        self.search = ctk.CTkEntry(self, placeholder_text="Search for a card...")
+        self.search.grid(row=0, column=0, sticky="ew", padx=(20, 10), pady=20)
         self.search.bind("<Return>", self.on_search)
 
-    def on_search(self, event = None):
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.grid(row=0, column=1, sticky="ew", padx=(10, 20), pady=20)
+        self.button_frame.grid_columnconfigure(0, weight=1, uniform="btns")
+        self.button_frame.grid_columnconfigure(1, weight=1, uniform="btns")
+
+        self.filter_button = ctk.CTkButton(self.button_frame, text="Filter")
+        self.filter_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
+        self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+
+        self.results = ctk.CTkTextbox(self)
+        self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
+        keywords = mtgsearch._get_keywords()
+        for key in keywords:
+            self.results.insert("end", f"{key}\n")
+
+        
+        self.image_box = ctk.CTkTextbox(self)
+        self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
+
+    
+
+    def on_search(self, event = "Tab"):
         keyword_name = self.search.get().strip()
         if not keyword_name:
             return
         self.results.delete("1,0")
 
+    
 
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("mtg Search tool")
+        self.title("MTG Search tool")
         self.geometry("720x460")
         self.minsize(720,460)
         self.maxsize(720, 460)
@@ -132,11 +186,11 @@ class App(ctk.CTk):
         self.main_frame = MainFrame(self)
         self.search_frame = FuzzySearchFrame(self)
         self.set_search_frame = SetSearchFrame(self)
-        self.keyword_frame = keywords(self)
+        self.keyword_frame = keywordsFrame(self)
         self.show_main_frame()
 
     def _show(self, frame):
-        for f in (self.main_frame, self.search_frame, self.set_search_frame):
+        for f in (self.main_frame, self.search_frame, self.set_search_frame, self.keyword_frame):
             f.grid_forget()
         frame.grid(row=0, column=0, sticky="nsew")
 

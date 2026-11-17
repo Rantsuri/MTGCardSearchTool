@@ -34,8 +34,8 @@ def _get(path, **params):
     return request.json()
 
 def _get_json(path):
-    with open(path) as file:
-        return json.load(path)
+     with open(path, encoding="utf-8") as file:
+        return json.load(file)
 
 def _parse_json(card_json):
     colors = ', '.join(card_json.get('color_identity', [])) or 'Colourless'
@@ -49,9 +49,9 @@ def _parse_json(card_json):
         f"Game Changer: {'Yes' if card_json.get('game_changer') else 'No'}\n"
     )
 
-def _get_keywords(keyword):
-    _keyword_list = _get_json('/MTGCardSearchTool/src/data/keywords.json')
-    
+def _get_keywords():
+    _keyword_list = _get_json('MTGCardSearchTool/src/data/keywords.json')
+    return _keyword_list
 
 
 

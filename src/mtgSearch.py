@@ -41,13 +41,22 @@ def _parse_json(card_json):
     colors = ', '.join(card_json.get('color_identity', [])) or 'Colourless'
     eur = card_json.get('prices', {}).get('eur')
     price = f"{eur}€" if eur else "N/A"
+   
+    print(card_json)
     return (
         f"Name: {card_json['name']}\n"
         f"Colour identity: {colors}\n"
         f"Price (non-foil): {price}\n"
         f"Set: {card_json['set'].upper()} #{card_json['collector_number']}\n"
         f"Game Changer: {'Yes' if card_json.get('game_changer') else 'No'}\n"
+        f"Commander legal: {'Yes' if card_json.get('legalities', {}).get('commander') else 'No'}\n"
     )
+
+def _get_card_image_uri(card_json):
+    image_uri= card_json.get('image_uris', {}).get('normal')
+    return image_uri
+
+#def _is_double_faced() TODO
 
 def _get_keywords():
     _keyword_list = _get_json('MTGCardSearchTool/src/data/keywords.json')
@@ -89,6 +98,18 @@ def _request(url, **params):
         return None
     response.raise_for_status()
     return response.json()
+
+def _get_image_bytes(url):
+    global _last_request
+    wait = 0.1 - (time.time() - _last_request)
+    if wait > 0:
+        time.sleep(wait)
+    response = requests.get(url, headers=HEADERS, timeout=15)
+    _last_request = time.time()
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    return response.content
 
 def _get_url(url):
     return _request(url)

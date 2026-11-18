@@ -1,5 +1,7 @@
 import customtkinter as ctk
 import requests
+from io import BytesIO
+from PIL import Image
 import mtgSearch as mtgsearch
 
 
@@ -55,7 +57,7 @@ class FuzzySearchFrame(ctk.CTkFrame):
         self.results = ctk.CTkTextbox(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
 
-        self.image_box = ctk.CTkTextbox(self)
+        self.image_box = ctk.CTkLabel(self, text= "")
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
 
     def on_filter(self):
@@ -75,6 +77,22 @@ class FuzzySearchFrame(ctk.CTkFrame):
             self.results.insert("end", "No card found.")
             return
         self.results.insert("end", mtgsearch._parse_json(card))
+        self.show_card_image(mtgsearch._get_card_image_uri(card))
+
+    def show_card_image(self, uri):
+            try:
+                data = mtgsearch._get_image_bytes(uri)
+            except requests.RequestException:
+                self.image_box.configure(text="Could not load image")
+                return
+            if data is None:
+                self.image_box.configure(text="Could not load image")
+                return
+            pil_image = Image.open(BytesIO(data))
+            self.card_image = ctk.CTkImage(light_image=pil_image, size=(220, 306))
+            self.image_box.configure(image=self.card_image, text="")
+
+
 
 class SetSearchFrame(ctk.CTkFrame):
     def __init__(self, master):
@@ -102,9 +120,9 @@ class SetSearchFrame(ctk.CTkFrame):
         self.results = ctk.CTkTextbox(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
 
-        self.image_box = ctk.CTkTextbox(self)
+        self.image_box = ctk.CTkLabel(self)
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
-
+        
     def on_search(self, event = None):
         set_name = self.searh.get().strip()
         if not set_name:
@@ -126,7 +144,7 @@ class SetSearchFrame(ctk.CTkFrame):
         except requests.RequestException as error:
             self.results.insert("end", f"Network error: {error}")
 
-
+  
 
 
 class keywordsFrame(ctk.CTkFrame):
@@ -152,17 +170,40 @@ class keywordsFrame(ctk.CTkFrame):
         self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
         self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
-        self.results = ctk.CTkTextbox(self)
+        self.results = ctk.CTkScrollableFrame(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
-        keywords = mtgsearch._get_keywords()
-        for key in keywords:
-            self.results.insert("end", f"{key}\n")
-
+       
+        self._iterate_keywords()
         
-        self.image_box = ctk.CTkTextbox(self)
+        self.image_box = ctk.CTkTextbox(self, state="disabled", wrap = "word")
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
 
+    def _iterate_keywords(self):
+        keywords = mtgsearch._get_keywords()
+        for key in keywords:
+            _button = ctk.CTkButton(
+                self.results,
+                text=key,
+                anchor="w",
+                command=lambda k=key: self.on_key_word_click(k)
+                    )
+            _button.pack(fill = "x", pady=2) 
+
+
+    def _get_keyword_definition_(self, key):
+        keyword = mtgsearch._get_keywords()
+        definition = keyword[key]
+        return definition
+
     
+    def on_key_word_click(self, key):
+        self.image_box.configure(state="normal")
+        self.image_box.delete("1.0", "end")
+        self.image_box._textbox.tag_config("title", font=("Arial", 20, "bold"))
+        self.image_box.insert("end", key + "\n", "title")
+        self.image_box.insert("end", self._get_keyword_definition_(key))
+        self.image_box.configure(state="disabled")
+
 
     def on_search(self, event = "Tab"):
         keyword_name = self.search.get().strip()

@@ -31,6 +31,8 @@ class MainFrame(ctk.CTkFrame):
         self.keyword_search_button = ctk.CTkButton(self, text= "keyword search", width=200, height=40, command=master.show_keyword_search_frame)
         self.keyword_search_button.grid(row = 2, column =1)
 
+   
+
 class FuzzySearchFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -229,6 +231,11 @@ class App(ctk.CTk):
         self.set_search_frame = SetSearchFrame(self)
         self.keyword_frame = keywordsFrame(self)
         self.show_main_frame()
+
+        self.bind("<Key-1>", lambda event: self._show(self.search_frame))
+        self.bind("<Key-2>", lambda event: self._show(self.keyword_frame))
+        self.bind("<Key-3>", lambda event: self._show(self.set_search_frame))
+        self.bind("<Escape>", lambda event: self._show(self.main_frame))
 
     def _show(self, frame):
         for f in (self.main_frame, self.search_frame, self.set_search_frame, self.keyword_frame):

@@ -102,47 +102,92 @@ class SetSearchFrame(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=1, uniform="cols")
         self.grid_rowconfigure(1, weight=1)
 
-        self.search = ctk.CTkEntry(self, placeholder_text="Search for a card...")
+        self.search = ctk.CTkEntry(self, placeholder_text="Search for a set (e.g. ltr)...")
         self.search.grid(row=0, column=0, sticky="ew", padx=(20, 10), pady=20)
-        self.search.bind("<Return>", self.on_search)
+        self.search.bind("<Return>", self._create_buttons)
 
         self.button_frame = ctk.CTkFrame(self)
         self.button_frame.grid(row=0, column=1, sticky="ew", padx=(10, 20), pady=20)
         self.button_frame.grid_columnconfigure(0, weight=1, uniform="btns")
         self.button_frame.grid_columnconfigure(1, weight=1, uniform="btns")
 
-        self.filter_button = ctk.CTkButton(self.button_frame, text="Filter")
+        self.filter_button = ctk.CTkOptionMenu(self.button_frame, values=["Any", "Creature", "Legendary"], command=self.filter_by_selection)
+        self.filter_button.set("Any")
+        self.cards = []
+
+
         self.filter_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
 
         self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
         self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
-
-        self.results = ctk.CTkTextbox(self)
+      
+        self.results = ctk.CTkScrollableFrame(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
+        self._create_buttons()
 
-        self.image_box = ctk.CTkLabel(self)
+
+        self.image_box = ctk.CTkLabel(self, text= "")
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
-        
-    def on_search(self, event = None):
+
+    def _create_buttons(self, event = None):
+        #TODO: multi-thread processing for better efficiency
         set_name = self.search.get().strip()
         if not set_name:
             return
-        self.results.delete("1.0", "end")
+        for widget in self.results.winfo_children():
+            widget.destroy()
+        matches = mtgsearch._find_sets(set_name)
+        if not matches:
+            return
+        self.cards = mtgsearch._get_set_cards(matches[0])
+        self.filter_by_selection()
+
+    def _filter_cards(self, cards):
+        if not cards:
+            self.filter_button.configure(text = "nothing to filter")
+
+
+    def _on_card_click(self, card):
+        uri = mtgsearch._get_card_image_uri(card)
         try:
-            matches = mtgsearch._find_sets(set_name)
-            if not matches:
-                self.results.insert("end", "Set not found.")
-            elif len(matches) > 1:
-                self.results.insert("end", "Multiple sets match:\n")
-                for s in matches:
-                    self.results.insert("end", f"{s['code']}: {s['name']}\n")
-            else:
-                cards = mtgsearch._get_set_cards(matches[0])
-                self.results.insert("end", f"{matches[0]['name']}: {len(cards)} cards\n\n")
-                for c in cards:
-                    self.results.insert("end", f"#{c['collector_number']} {c['name']}\n")
-        except requests.RequestException as error:
-            self.results.insert("end", f"Network error: {error}")
+            data = mtgsearch._get_image_bytes(uri)
+        except requests.RequestException:
+            self.image_box.configure(text="Could not load image")
+            return
+        if data is None:
+            self.image_box.configure(text="Could not load image")
+            return
+        pil_image = Image.open(BytesIO(data))
+        self.card_image = ctk.CTkImage(light_image=pil_image, size=(220, 306))
+        self.image_box.configure(image=self.card_image, text="")
+        
+    def filter_by_selection(self, event = None):
+        choice = self.filter_button.get()
+
+        for widget in self.results.winfo_children():
+            widget.destroy()
+
+        for card in self.cards:
+            type_line = card.get("type_line", "")
+            if choice == "Creature" and "Creature" not in type_line:
+                continue
+            if choice == "Legendary" and "Legendary" not in type_line:
+                continue
+         
+
+            _button = ctk.CTkButton(
+                self.results,
+                text=card['name'],
+                anchor="w",
+                command= lambda c = card: self._on_card_click(c)
+            )
+            _button.pack(fill = "x", pady =2)
+
+
+    #def _get_card_image():
+
+
+   
 
   
 
@@ -173,12 +218,12 @@ class keywordsFrame(ctk.CTkFrame):
         self.results = ctk.CTkScrollableFrame(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
        
-        self._iterate_keywords()
+        self._create_buttons()
         
         self.image_box = ctk.CTkTextbox(self, state="disabled", wrap = "word")
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
 
-    def _iterate_keywords(self):
+    def _create_buttons(self):
         keywords = mtgsearch._get_keywords()
         for key in keywords:
             _button = ctk.CTkButton(

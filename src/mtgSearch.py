@@ -8,6 +8,8 @@ import time
 from collections import Counter
 from pathlib import Path
 
+_JSON_DIR = os.path.dirname(os.path.abspath(__file__))
+
 import requests
 
 BASE = 'https://api.scryfall.com'
@@ -59,8 +61,7 @@ def _get_card_image_uri(card_json):
 #def _is_double_faced() TODO
 
 def _get_keywords():
-    _keyword_list = _get_json('MTGCardSearchTool/src/data/keywords.json')
-    return _keyword_list
+    return _get_json(os.path.join(_JSON_DIR, "data", "keywords.json"))       
 
 
 

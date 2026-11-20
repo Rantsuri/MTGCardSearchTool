@@ -2,11 +2,13 @@ import customtkinter as ctk
 import requests
 from io import BytesIO
 from PIL import Image
+import os
 import mtgSearch as mtgsearch
 
-
+DIR = os.path.dirname(os.path.abspath(__file__))
+THEME_PATH = os.path.join(DIR, "theme_assets", "custom_theme.json")
 ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("MTGCardSearchTool/src/theme_assets/custom_theme.json")
+ctk.set_default_color_theme(THEME_PATH)
 
 class MainFrame(ctk.CTkFrame):
     def __init__(self,master):
@@ -47,14 +49,10 @@ class FuzzySearchFrame(ctk.CTkFrame):
 
         self.button_frame = ctk.CTkFrame(self)
         self.button_frame.grid(row=0, column=1, sticky="ew", padx=(10, 20), pady=20)
-        self.button_frame.grid_columnconfigure(0, weight=1, uniform="btns")
-        self.button_frame.grid_columnconfigure(1, weight=1, uniform="btns")
-
-        self.filter_button = ctk.CTkButton(self.button_frame, text="Filter")
-        self.filter_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
-
+        self.button_frame.grid_columnconfigure(0, weight=1)
+        
         self.back_button = ctk.CTkButton(self.button_frame, text="Back", command=master.show_main_frame)
-        self.back_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+        self.back_button.grid(row=0, column=0, sticky="ew", padx=(5, 0))
 
         self.results = ctk.CTkTextbox(self)
         self.results.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
@@ -126,7 +124,7 @@ class SetSearchFrame(ctk.CTkFrame):
         self.image_box.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
         
     def on_search(self, event = None):
-        set_name = self.searh.get().strip()
+        set_name = self.search.get().strip()
         if not set_name:
             return
         self.results.delete("1.0", "end")
@@ -206,13 +204,11 @@ class keywordsFrame(ctk.CTkFrame):
         self.image_box.insert("end", self._get_keyword_definition_(key))
         self.image_box.configure(state="disabled")
 
-
     def on_search(self, event = "Tab"):
         keyword_name = self.search.get().strip()
         if not keyword_name:
             return
-        self.results.delete("1,0")
-
+        
     
 
 
